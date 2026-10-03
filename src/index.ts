@@ -1,4 +1,5 @@
 import {
+  BackSide,
   BoxGeometry,
   CylinderGeometry,
   DistanceGrabbable,
@@ -13,6 +14,7 @@ import {
   SphereGeometry,
   TorusGeometry,
   UIKitMLAsset,
+  VideoTexture,
   World,
 } from '@iwsdk/core';
 
@@ -46,6 +48,8 @@ const container = document.getElementById('scene-container');
 if (!(container instanceof HTMLDivElement)) {
   throw new Error('Missing #scene-container');
 }
+
+const isVideoDemo = new URLSearchParams(window.location.search).get('demo') === 'video';
 
 const panel = document.createElement('aside');
 panel.innerHTML = `
@@ -88,6 +92,7 @@ panelStyle.textContent = `
 `;
 document.head.appendChild(panelStyle);
 document.body.appendChild(panel);
+if (isVideoDemo) panel.style.display = 'none';
 
 const progressCount = panel.querySelector('#progress-count');
 const progressFill = panel.querySelector('#progress-fill');
@@ -118,8 +123,121 @@ const addMesh = (parent: Object3D, geometry: BoxGeometry | CylinderGeometry | Sp
   return mesh;
 };
 
+const setupVideoDemo = (world: World): void => {
+  const desktopPanel = document.createElement('aside');
+  desktopPanel.innerHTML = `
+    <div class="video-eyebrow">IMMERSIVE MEDIA</div>
+    <h1>360 WEBXR VIDEO</h1>
+    <button id="desktop-video-enter" type="button">ENTER XR</button>
+    <button id="desktop-video-start" type="button">START VIDEO</button>
+    <button id="desktop-video-stop" type="button">STOP VIDEO</button>
+    <p id="desktop-video-status">Status: READY</p>
+  `;
+  Object.assign(desktopPanel.style, {
+    position: 'fixed',
+    left: '24px',
+    bottom: '24px',
+    width: '260px',
+    padding: '20px',
+    color: '#e8fbff',
+    background: 'rgba(7, 19, 31, .92)',
+    border: '1px solid rgba(85, 223, 242, .55)',
+    borderRadius: '12px',
+    boxShadow: '0 18px 60px rgba(0, 0, 0, .4)',
+    fontFamily: 'Trebuchet MS, sans-serif',
+    zIndex: '10',
+  });
+  const desktopStyle = document.createElement('style');
+  desktopStyle.textContent = `
+    .video-eyebrow { color: #55dff2; letter-spacing: .18em; font-size: 11px; font-weight: bold; }
+    aside h1 { margin: 7px 0 16px; font-size: 21px; letter-spacing: .06em; }
+    #desktop-video-enter, #desktop-video-start, #desktop-video-stop { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #55dff2; border-radius: 7px; color: #e8fbff; background: rgba(31, 115, 137, .35); font: inherit; font-size: 12px; letter-spacing: .1em; cursor: pointer; }
+    #desktop-video-enter:hover, #desktop-video-start:hover, #desktop-video-stop:hover { background: rgba(56, 180, 199, .55); }
+    #desktop-video-status { margin: 14px 0 0; color: #a9d9df; font-size: 13px; }
+  `;
+  document.head.appendChild(desktopStyle);
+  document.body.appendChild(desktopPanel);
+
+  const desktopEnter = desktopPanel.querySelector('#desktop-video-enter');
+  const desktopStart = desktopPanel.querySelector('#desktop-video-start');
+  const desktopStop = desktopPanel.querySelector('#desktop-video-stop');
+  const desktopStatus = desktopPanel.querySelector('#desktop-video-status');
+  if (!(desktopEnter instanceof HTMLButtonElement) || !(desktopStart instanceof HTMLButtonElement) || !(desktopStop instanceof HTMLButtonElement) || !(desktopStatus instanceof HTMLElement)) {
+    throw new Error('360 video desktop controls failed to initialize');
+  }
+
+  const video = document.createElement('video');
+  video.src = `${import.meta.env.BASE_URL}videos/360-demo.mp4`;
+  video.loop = true;
+  video.preload = 'auto';
+  video.playsInline = true;
+  video.crossOrigin = 'anonymous';
+  video.style.display = 'none';
+
+  const videoTexture = new VideoTexture(video);
+  const videoSphere = new Mesh(
+    new SphereGeometry(20, 64, 40),
+    new MeshBasicMaterial({ map: videoTexture, side: BackSide }),
+  );
+  videoSphere.position.set(0, 1.6, 0);
+  world.createTransformEntity(videoSphere);
+
+  const reactorPanel = world.getSceneObject<UIKitMLAsset>('reactor-status-panel');
+  const xrPanel = world.getSceneObject<UIKitMLAsset>('video-control-panel');
+  if (reactorPanel) reactorPanel.visible = false;
+  if (xrPanel) xrPanel.visible = true;
+  const xrStart = xrPanel?.getElementById('video-start');
+  const xrStop = xrPanel?.getElementById('video-stop');
+  const xrStatus = xrPanel?.getElementById('video-status');
+
+  const setVideoStatus = (status: 'READY' | 'PLAYING' | 'STOPPED' | 'ERROR'): void => {
+    desktopStatus.textContent = `Status: ${status}`;
+    xrStatus?.setProperties({ text: `Status: ${status}` });
+  };
+
+  const stopVideo = (): void => {
+    video.pause();
+    video.currentTime = 0;
+    setVideoStatus('STOPPED');
+    console.log('360 video stopped');
+  };
+
+  const startVideo = async (): Promise<void> => {
+    video.currentTime = 0;
+    try {
+      await video.play();
+      setVideoStatus('PLAYING');
+      console.log('360 video started');
+    } catch (error) {
+      setVideoStatus('ERROR');
+      console.error('360 video error', error);
+    }
+  };
+
+  video.addEventListener('canplay', () => {
+    setVideoStatus('READY');
+    console.log('360 video ready');
+  });
+  video.addEventListener('error', () => {
+    setVideoStatus('ERROR');
+    console.error('360 video error', video.error);
+  });
+  desktopStart.addEventListener('click', startVideo);
+  desktopStop.addEventListener('click', stopVideo);
+  desktopEnter.addEventListener('click', () => world.launchXR());
+  xrStart?.addEventListener('click', startVideo);
+  xrStop?.addEventListener('click', stopVideo);
+  setVideoStatus('READY');
+};
+
 World.create(container, projectOptions)
   .then((world) => {
+    if (isVideoDemo) {
+      setupVideoDemo(world);
+      return;
+    }
+    const videoPanel = world.getSceneObject<UIKitMLAsset>('video-control-panel');
+    if (videoPanel) videoPanel.visible = false;
     console.log('IWSDK world ready');
     world.camera.position.set(0, 1.6, 0);
     world.camera.lookAt(0, 1.45, -3);

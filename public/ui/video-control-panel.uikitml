@@ -1,0 +1,50 @@
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 300px;
+    padding: 16px;
+    background-color: rgba(7, 20, 32, 0.72);
+    border-color: #55dff2;
+    border-width: 2px;
+    border-radius: 10px;
+  }
+
+  .eyebrow {
+    color: #55dff2;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  .title {
+    color: #ecfeff;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 7px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .button {
+    margin-top: 7px;
+    margin-bottom: 2px;
+  }
+
+  .status {
+    color: #a9d9df;
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: center;
+  }
+</style>
+<Panel class="panel-root">
+  <div class="eyebrow">IMMERSIVE MEDIA</div>
+  <div class="title">360 WEBXR VIDEO</div>
+  <Button id="video-start" class="button">
+    <ButtonLabel>START VIDEO</ButtonLabel>
+  </Button>
+  <Button id="video-stop" class="button">
+    <ButtonLabel>STOP VIDEO</ButtonLabel>
+  </Button>
+  <div id="video-status" class="status">Status: READY</div>
+</Panel>

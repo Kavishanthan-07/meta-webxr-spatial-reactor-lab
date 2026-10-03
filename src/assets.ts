@@ -23,6 +23,12 @@ export default defineAssets({
     name: 'Reactor Status Panel',
   },
 
+  'video-control-panel': {
+    url: publicAssetUrl('ui/video-control-panel.uikitml'),
+    type: AssetType.UIKitML,
+    name: '360 Video Control Panel',
+  },
+
   'webxr-banner': {
     url: publicAssetUrl('gltf/webxr-banner/banner.gltf'),
     type: AssetType.GLTF,

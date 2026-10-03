@@ -31,6 +31,21 @@
       "components": {
         "RayInteractable": {}
       }
+    },
+    {
+      "id": "video-control-panel",
+      "name": "360 Video Control Panel",
+      "content": {
+        "type": "asset",
+        "asset": "video-control-panel"
+      },
+      "transform": {
+        "position": [0, 1.3, -1.5],
+        "scale": 0.26
+      },
+      "components": {
+        "RayInteractable": {}
+      }
     }
   ]
 }
