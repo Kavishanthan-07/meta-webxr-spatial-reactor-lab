@@ -1,0 +1,59 @@
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 280px;
+    padding: 8px;
+    background-color: rgba(7, 27, 42, 0.12);
+    border-color: rgba(73, 217, 238, 0.35);
+    border-width: 1px;
+    border-radius: 6px;
+  }
+
+  .eyebrow {
+    color: #49d9ee;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  .title {
+    color: #dffcff;
+    background-color: rgba(127, 255, 224, 0.08);
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: center;
+  }
+
+  .count {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 5px;
+    text-align: center;
+  }
+
+  .part {
+    color: #c8e5e9;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .status {
+    color: #9ec5cc;
+    font-size: 10px;
+    margin-top: 6px;
+    text-align: center;
+  }
+</style>
+<Panel class="panel-root">
+  <div class="eyebrow">META WEBXR</div>
+  <div id="xr-mode" class="title">SPATIAL REACTOR LAB</div>
+  <div id="xr-count" class="count">ASSEMBLY 0 / 3</div>
+  <div id="xr-core" class="part">[ ] Energy Core</div>
+  <div id="xr-power" class="part">[ ] Power Module</div>
+  <div id="xr-control" class="part">[ ] Control Module</div>
+  <div id="xr-status" class="status">Look at a component. Pinch and move it to its socket.</div>
+</Panel>
