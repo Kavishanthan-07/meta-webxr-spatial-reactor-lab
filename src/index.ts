@@ -51,6 +51,46 @@ if (!(container instanceof HTMLDivElement)) {
 
 const isVideoDemo = new URLSearchParams(window.location.search).get('demo') === 'video';
 
+type VideoExperience = {
+  id: string;
+  title: string;
+  file: string;
+  source: string;
+  creator: string;
+  sourceUrl: string;
+  license: string;
+};
+
+const experiences: VideoExperience[] = [
+  {
+    id: 'nature',
+    title: 'Nature',
+    file: 'videos/nature-360.mp4',
+    source: 'Pixabay',
+    creator: 'JosephSenior',
+    sourceUrl: 'https://pixabay.com/videos/aerial-view-wilderness-land-skyline-110941/',
+    license: 'Pixabay Content License',
+  },
+  {
+    id: 'city',
+    title: 'Drone / Landscape',
+    file: 'videos/city-360.mp4',
+    source: 'Pixabay',
+    creator: 'Galaxy7894',
+    sourceUrl: 'https://pixabay.com/videos/footage-drone-flying-shot-110116/',
+    license: 'Pixabay Content License',
+  },
+  {
+    id: 'space',
+    title: 'Earth & Space',
+    file: 'videos/space-360.mp4',
+    source: 'Pixabay',
+    creator: 'ChristianBodhi',
+    sourceUrl: 'https://pixabay.com/videos/earth-galaxy-stars-globe-universe-64349/',
+    license: 'Pixabay Content License',
+  },
+];
+
 const panel = document.createElement('aside');
 panel.innerHTML = `
   <div class="eyebrow">META WEBXR</div>
@@ -126,18 +166,24 @@ const addMesh = (parent: Object3D, geometry: BoxGeometry | CylinderGeometry | Sp
 const setupVideoDemo = (world: World): void => {
   const desktopPanel = document.createElement('aside');
   desktopPanel.innerHTML = `
-    <div class="video-eyebrow">IMMERSIVE MEDIA</div>
-    <h1>360 WEBXR VIDEO</h1>
+    <div class="video-eyebrow">META WEBXR</div>
+    <h1>360 EXPERIENCE GALLERY</h1>
+    <div class="video-label">CHOOSE EXPERIENCE</div>
+    <div class="video-experiences">
+      ${experiences.map((experience) => `<button class="experience-button" data-experience="${experience.id}" type="button">${experience.title}</button>`).join('')}
+    </div>
+    <div id="desktop-video-selected" class="video-selected"></div>
     <button id="desktop-video-enter" type="button">ENTER XR</button>
     <button id="desktop-video-start" type="button">START VIDEO</button>
     <button id="desktop-video-stop" type="button">STOP VIDEO</button>
     <p id="desktop-video-status">Status: READY</p>
+    <div id="desktop-video-attribution" class="video-attribution"></div>
   `;
   Object.assign(desktopPanel.style, {
     position: 'fixed',
     left: '24px',
     bottom: '24px',
-    width: '260px',
+    width: 'min(340px, calc(100vw - 48px))',
     padding: '20px',
     color: '#e8fbff',
     background: 'rgba(7, 19, 31, .92)',
@@ -150,10 +196,16 @@ const setupVideoDemo = (world: World): void => {
   const desktopStyle = document.createElement('style');
   desktopStyle.textContent = `
     .video-eyebrow { color: #55dff2; letter-spacing: .18em; font-size: 11px; font-weight: bold; }
-    aside h1 { margin: 7px 0 16px; font-size: 21px; letter-spacing: .06em; }
+    aside h1 { margin: 7px 0 16px; font-size: 19px; letter-spacing: .06em; }
+    .video-label { color: #a9d9df; font-size: 11px; letter-spacing: .12em; }
+    .video-experiences { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+    .experience-button { min-height: 42px; padding: 6px; border: 1px solid rgba(85, 223, 242, .55); border-radius: 7px; color: #e8fbff; background: rgba(31, 115, 137, .25); font: inherit; font-size: 11px; cursor: pointer; }
+    .experience-button.selected { color: #06222b; background: #72e8ef; }
+    .video-selected { margin-top: 10px; color: #f2ffff; font-size: 14px; font-weight: bold; }
     #desktop-video-enter, #desktop-video-start, #desktop-video-stop { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #55dff2; border-radius: 7px; color: #e8fbff; background: rgba(31, 115, 137, .35); font: inherit; font-size: 12px; letter-spacing: .1em; cursor: pointer; }
     #desktop-video-enter:hover, #desktop-video-start:hover, #desktop-video-stop:hover { background: rgba(56, 180, 199, .55); }
     #desktop-video-status { margin: 14px 0 0; color: #a9d9df; font-size: 13px; }
+    .video-attribution { margin-top: 12px; color: #82b4bd; font-size: 11px; line-height: 1.4; }
   `;
   document.head.appendChild(desktopStyle);
   document.body.appendChild(desktopPanel);
@@ -162,12 +214,15 @@ const setupVideoDemo = (world: World): void => {
   const desktopStart = desktopPanel.querySelector('#desktop-video-start');
   const desktopStop = desktopPanel.querySelector('#desktop-video-stop');
   const desktopStatus = desktopPanel.querySelector('#desktop-video-status');
-  if (!(desktopEnter instanceof HTMLButtonElement) || !(desktopStart instanceof HTMLButtonElement) || !(desktopStop instanceof HTMLButtonElement) || !(desktopStatus instanceof HTMLElement)) {
+  const desktopSelected = desktopPanel.querySelector('#desktop-video-selected');
+  const desktopAttribution = desktopPanel.querySelector('#desktop-video-attribution');
+  const desktopExperienceButtons = desktopPanel.querySelectorAll<HTMLButtonElement>('[data-experience]');
+  if (!(desktopEnter instanceof HTMLButtonElement) || !(desktopStart instanceof HTMLButtonElement) || !(desktopStop instanceof HTMLButtonElement) ||
+      !(desktopStatus instanceof HTMLElement) || !(desktopSelected instanceof HTMLElement) || !(desktopAttribution instanceof HTMLElement)) {
     throw new Error('360 video desktop controls failed to initialize');
   }
 
   const video = document.createElement('video');
-  video.src = `${import.meta.env.BASE_URL}videos/360-demo.mp4`;
   video.loop = true;
   video.preload = 'auto';
   video.playsInline = true;
@@ -186,13 +241,50 @@ const setupVideoDemo = (world: World): void => {
   const xrPanel = world.getSceneObject<UIKitMLAsset>('video-control-panel');
   if (reactorPanel) reactorPanel.visible = false;
   if (xrPanel) xrPanel.visible = true;
+  const xrSelected = xrPanel?.getElementById('video-selected');
+  const xrExperienceButtons = [
+    ['nature', xrPanel?.getElementById('video-nature')],
+    ['city', xrPanel?.getElementById('video-city')],
+    ['space', xrPanel?.getElementById('video-space')],
+  ] as const;
   const xrStart = xrPanel?.getElementById('video-start');
   const xrStop = xrPanel?.getElementById('video-stop');
   const xrStatus = xrPanel?.getElementById('video-status');
 
-  const setVideoStatus = (status: 'READY' | 'PLAYING' | 'STOPPED' | 'ERROR'): void => {
+  let selectedExperience = experiences[0];
+
+  const setVideoStatus = (status: 'LOADING' | 'READY' | 'PLAYING' | 'STOPPED' | 'ERROR'): void => {
     desktopStatus.textContent = `Status: ${status}`;
     xrStatus?.setProperties({ text: `Status: ${status}` });
+  };
+
+  const updateExperienceUI = (): void => {
+    desktopSelected.textContent = `Selected: ${selectedExperience.title}`;
+    desktopAttribution.innerHTML = `Source: ${selectedExperience.source}<br>Creator: ${selectedExperience.creator}<br>License: ${selectedExperience.license}`;
+    desktopExperienceButtons.forEach((button) => {
+      button.classList.toggle('selected', button.dataset.experience === selectedExperience.id);
+    });
+    xrSelected?.setProperties({ text: `Selected: ${selectedExperience.title}` });
+    xrExperienceButtons.forEach(([id, button]) => {
+      button?.setProperties({
+        backgroundColor: id === selectedExperience.id ? '#55dff2' : '#163d4b',
+        color: id === selectedExperience.id ? '#06222b' : '#ecfeff',
+      });
+    });
+  };
+
+  const selectExperience = (id: string): void => {
+    const experience = experiences.find((candidate) => candidate.id === id);
+    if (!experience) return;
+    video.pause();
+    video.currentTime = 0;
+    selectedExperience = experience;
+    video.src = `${import.meta.env.BASE_URL}${experience.file}`;
+    video.load();
+    videoTexture.needsUpdate = true;
+    updateExperienceUI();
+    setVideoStatus('LOADING');
+    console.log(`Selected experience: ${experience.title}`);
   };
 
   const stopVideo = (): void => {
@@ -225,9 +317,17 @@ const setupVideoDemo = (world: World): void => {
   desktopStart.addEventListener('click', startVideo);
   desktopStop.addEventListener('click', stopVideo);
   desktopEnter.addEventListener('click', () => world.launchXR());
+  desktopExperienceButtons.forEach((button) => {
+    const experienceId = button.dataset.experience;
+    if (experienceId) button.addEventListener('click', () => selectExperience(experienceId));
+  });
   xrStart?.addEventListener('click', startVideo);
   xrStop?.addEventListener('click', stopVideo);
-  setVideoStatus('READY');
+  xrExperienceButtons.forEach(([id, button]) => {
+    button?.addEventListener('click', () => selectExperience(id));
+  });
+  updateExperienceUI();
+  selectExperience(selectedExperience.id);
 };
 
 World.create(container, projectOptions)

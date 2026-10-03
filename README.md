@@ -48,3 +48,30 @@ Gaze at component
 ```bash
 npm install
 npm run dev
+```
+
+## Demo Media and Licensing
+
+The 360 gallery is available at `?demo=video` and loads local files from
+`public/videos/`.
+
+### Nature 360
+
+Source: Pixabay  
+Creator: JosephSenior  
+Source URL: https://pixabay.com/videos/aerial-view-wilderness-land-skyline-110941/  
+License: Pixabay Content License
+
+### City 360
+
+Source: Pixabay  
+Creator: Galaxy7894  
+Source URL: https://pixabay.com/videos/footage-drone-flying-shot-110116/  
+License: Pixabay Content License
+
+### Space 360
+
+Source: Pixabay  
+Creator: ChristianBodhi  
+Source URL: https://pixabay.com/videos/earth-galaxy-stars-globe-universe-64349/  
+License: Pixabay Content License

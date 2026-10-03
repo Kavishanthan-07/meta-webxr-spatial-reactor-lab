@@ -1,8 +1,8 @@
 <style>
   .panel-root {
     flex-direction: column;
-    width: 300px;
-    padding: 16px;
+    width: 340px;
+    padding: 14px;
     background-color: rgba(7, 20, 32, 0.72);
     border-color: #55dff2;
     border-width: 2px;
@@ -25,6 +25,16 @@
     text-align: center;
   }
 
+  .choices {
+    flex-direction: row;
+    gap: 5px;
+    margin-top: 4px;
+  }
+
+  .choice {
+    flex-grow: 1;
+  }
+
   .button {
     margin-top: 7px;
     margin-bottom: 2px;
@@ -39,7 +49,19 @@
 </style>
 <Panel class="panel-root">
   <div class="eyebrow">IMMERSIVE MEDIA</div>
-  <div class="title">360 WEBXR VIDEO</div>
+  <div class="title">360 WEBXR GALLERY</div>
+  <div id="video-selected" class="status">Selected: Nature</div>
+  <div class="choices">
+    <Button id="video-nature" class="choice">
+      <ButtonLabel>NATURE</ButtonLabel>
+    </Button>
+    <Button id="video-city" class="choice">
+      <ButtonLabel>CITY</ButtonLabel>
+    </Button>
+    <Button id="video-space" class="choice">
+      <ButtonLabel>SPACE</ButtonLabel>
+    </Button>
+  </div>
   <Button id="video-start" class="button">
     <ButtonLabel>START VIDEO</ButtonLabel>
   </Button>
