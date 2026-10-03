@@ -1,26 +1,50 @@
-# IWSDK App
+# Meta WebXR Spatial Reactor Lab
 
-This project uses `iwsdk.config.json` for declarative scene, asset, component,
-XR, and emulator configuration. Application systems remain explicit in
-`src/index.ts`.
+A small interactive WebXR prototype built using Meta Immersive Web SDK (IWSDK).
 
-```sh
+## Demo Goal
+
+This project explores interaction patterns for Meta VR Glasses using:
+
+- WebXR
+- Meta IWSDK
+- gaze targeting
+- hand pinch interaction
+- spatial object manipulation
+- distance grabbing
+- proximity-based snapping
+- procedural Three.js geometry
+
+## Experience
+
+The user assembles a spatial energy reactor using three components:
+
+1. Energy Core
+2. Power Module
+3. Control Module
+
+Interaction flow:
+
+Gaze at component
+→ highlight
+→ pinch/grab
+→ move in 3D
+→ place near matching socket
+→ snap
+→ reactor progress updates
+→ reactor activates when complete
+
+## Technologies
+
+- Meta Immersive Web SDK
+- WebXR
+- Three.js
+- TypeScript
+- Vite
+- IWER emulator
+
+## Run Locally
+
+```bash
 npm install
 npm run dev
-```
-
-Use the Runtime and Editor controls in the managed browser to switch between
-the running experience and its authored scene.
-
-## Starter content
-
-The robot and welcome panel are small examples of authored scene content plus
-runtime systems. The robot turns toward the player's head and plays a sound
-when pressed. To remove the robot, delete its scene node, its `RobotSystem`
-registration from `src/index.ts` or `src/index.js`, and its `Robot` registration
-from `src/components.ts` or `src/components.js`; you can then delete the unused
-robot component and system files. To remove the welcome panel, delete its scene
-node and its `PanelSystem` registration from the application entry point.
-
-- Minimal scene walkthrough: https://iwsdk.dev/guides/01b-minimal-scene.html
-- XR-enabled projects — IWER emulator controls: https://iwsdk.dev/guides/02-testing-experience.html#iwer-controls
