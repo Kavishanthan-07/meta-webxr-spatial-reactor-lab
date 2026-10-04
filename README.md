@@ -14,6 +14,11 @@ This project explores interaction patterns for Meta VR Glasses using:
 - distance grabbing
 - proximity-based snapping
 - procedural Three.js geometry
+- multiple slow-moving 360-degree experiences
+- selectable XR gallery
+- immersive VR capability detection
+- Start / Stop video controls
+- royalty-free media attribution
 
 ## Experience
 
@@ -57,21 +62,42 @@ The 360 gallery is available at `?demo=video` and loads local files from
 
 ### Nature 360
 
-Source: Pixabay  
-Creator: JosephSenior  
-Source URL: https://pixabay.com/videos/aerial-view-wilderness-land-skyline-110941/  
-License: Pixabay Content License
+- Source: Pixabay
+- Creator: JosephSenior
+- Source URL: https://pixabay.com/videos/aerial-view-wilderness-land-skyline-110941/
+- License: Pixabay Content License
+
+### Mountain View 360
+
+- Source: TODO
+- Creator: TODO
+- Source URL: TODO
+- License: TODO
+
+### Forest 360
+
+- Source: TODO
+- Creator: TODO
+- Source URL: TODO
+- License: TODO
 
 ### City 360
 
-Source: Pixabay  
-Creator: Galaxy7894  
-Source URL: https://pixabay.com/videos/footage-drone-flying-shot-110116/  
-License: Pixabay Content License
+- Source: Pixabay
+- Creator: Galaxy7894
+- Source URL: https://pixabay.com/videos/footage-drone-flying-shot-110116/
+- License: Pixabay Content License
+
+### City Panorama 2 360
+
+- Source: TODO
+- Creator: TODO
+- Source URL: TODO
+- License: TODO
 
 ### Space 360
 
-Source: Pixabay  
-Creator: ChristianBodhi  
-Source URL: https://pixabay.com/videos/earth-galaxy-stars-globe-universe-64349/  
-License: Pixabay Content License
+- Source: Pixabay
+- Creator: ChristianBodhi
+- Source URL: https://pixabay.com/videos/earth-galaxy-stars-globe-universe-64349/
+- License: Pixabay Content License

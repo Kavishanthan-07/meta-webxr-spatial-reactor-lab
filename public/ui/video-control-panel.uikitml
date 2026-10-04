@@ -26,9 +26,14 @@
   }
 
   .choices {
-    flex-direction: row;
+    flex-direction: column;
     gap: 5px;
     margin-top: 4px;
+  }
+
+  .choice-row {
+    flex-direction: row;
+    gap: 5px;
   }
 
   .choice {
@@ -52,15 +57,16 @@
   <div class="title">360 WEBXR GALLERY</div>
   <div id="video-selected" class="status">Selected: Nature</div>
   <div class="choices">
-    <Button id="video-nature" class="choice">
-      <ButtonLabel>NATURE</ButtonLabel>
-    </Button>
-    <Button id="video-city" class="choice">
-      <ButtonLabel>CITY</ButtonLabel>
-    </Button>
-    <Button id="video-space" class="choice">
-      <ButtonLabel>SPACE</ButtonLabel>
-    </Button>
+    <div class="choice-row">
+      <Button id="video-nature" class="choice"><ButtonLabel>NATURE</ButtonLabel></Button>
+      <Button id="video-mountain" class="choice"><ButtonLabel>MOUNTAIN</ButtonLabel></Button>
+      <Button id="video-forest" class="choice"><ButtonLabel>FOREST</ButtonLabel></Button>
+    </div>
+    <div class="choice-row">
+      <Button id="video-city" class="choice"><ButtonLabel>CITY</ButtonLabel></Button>
+      <Button id="video-city-2" class="choice"><ButtonLabel>CITY 2</ButtonLabel></Button>
+      <Button id="video-space" class="choice"><ButtonLabel>SPACE</ButtonLabel></Button>
+    </div>
   </div>
   <Button id="video-start" class="button">
     <ButtonLabel>START VIDEO</ButtonLabel>

@@ -72,6 +72,24 @@ const experiences: VideoExperience[] = [
     license: 'Pixabay Content License',
   },
   {
+    id: 'mountain',
+    title: 'Mountain View',
+    file: 'videos/mountain-360.mp4',
+    source: 'TODO',
+    creator: 'TODO',
+    sourceUrl: 'TODO',
+    license: 'TODO',
+  },
+  {
+    id: 'forest',
+    title: 'Forest',
+    file: 'videos/forest-360.mp4',
+    source: 'TODO',
+    creator: 'TODO',
+    sourceUrl: 'TODO',
+    license: 'TODO',
+  },
+  {
     id: 'city',
     title: 'Drone / Landscape',
     file: 'videos/city-360.mp4',
@@ -79,6 +97,15 @@ const experiences: VideoExperience[] = [
     creator: 'Galaxy7894',
     sourceUrl: 'https://pixabay.com/videos/footage-drone-flying-shot-110116/',
     license: 'Pixabay Content License',
+  },
+  {
+    id: 'city-2',
+    title: 'City Panorama 2',
+    file: 'videos/city-2-360.mp4',
+    source: 'TODO',
+    creator: 'TODO',
+    sourceUrl: 'TODO',
+    license: 'TODO',
   },
   {
     id: 'space',
@@ -176,6 +203,7 @@ const setupVideoDemo = (world: World): void => {
     <button id="desktop-video-enter" type="button">ENTER XR</button>
     <button id="desktop-video-start" type="button">START VIDEO</button>
     <button id="desktop-video-stop" type="button">STOP VIDEO</button>
+    <p id="desktop-xr-capability" class="xr-capability">CHECKING XR...</p>
     <p id="desktop-video-status">Status: READY</p>
     <div id="desktop-video-attribution" class="video-attribution"></div>
   `;
@@ -203,7 +231,9 @@ const setupVideoDemo = (world: World): void => {
     .experience-button.selected { color: #06222b; background: #72e8ef; }
     .video-selected { margin-top: 10px; color: #f2ffff; font-size: 14px; font-weight: bold; }
     #desktop-video-enter, #desktop-video-start, #desktop-video-stop { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #55dff2; border-radius: 7px; color: #e8fbff; background: rgba(31, 115, 137, .35); font: inherit; font-size: 12px; letter-spacing: .1em; cursor: pointer; }
+    #desktop-video-enter:disabled { cursor: not-allowed; opacity: .5; }
     #desktop-video-enter:hover, #desktop-video-start:hover, #desktop-video-stop:hover { background: rgba(56, 180, 199, .55); }
+    .xr-capability { margin: 12px 0 0; color: #a9d9df; font-size: 11px; line-height: 1.4; }
     #desktop-video-status { margin: 14px 0 0; color: #a9d9df; font-size: 13px; }
     .video-attribution { margin-top: 12px; color: #82b4bd; font-size: 11px; line-height: 1.4; }
   `;
@@ -213,12 +243,14 @@ const setupVideoDemo = (world: World): void => {
   const desktopEnter = desktopPanel.querySelector('#desktop-video-enter');
   const desktopStart = desktopPanel.querySelector('#desktop-video-start');
   const desktopStop = desktopPanel.querySelector('#desktop-video-stop');
+  const desktopXrCapability = desktopPanel.querySelector('#desktop-xr-capability');
   const desktopStatus = desktopPanel.querySelector('#desktop-video-status');
   const desktopSelected = desktopPanel.querySelector('#desktop-video-selected');
   const desktopAttribution = desktopPanel.querySelector('#desktop-video-attribution');
   const desktopExperienceButtons = desktopPanel.querySelectorAll<HTMLButtonElement>('[data-experience]');
   if (!(desktopEnter instanceof HTMLButtonElement) || !(desktopStart instanceof HTMLButtonElement) || !(desktopStop instanceof HTMLButtonElement) ||
-      !(desktopStatus instanceof HTMLElement) || !(desktopSelected instanceof HTMLElement) || !(desktopAttribution instanceof HTMLElement)) {
+      !(desktopXrCapability instanceof HTMLElement) || !(desktopStatus instanceof HTMLElement) ||
+      !(desktopSelected instanceof HTMLElement) || !(desktopAttribution instanceof HTMLElement)) {
     throw new Error('360 video desktop controls failed to initialize');
   }
 
@@ -242,11 +274,10 @@ const setupVideoDemo = (world: World): void => {
   if (reactorPanel) reactorPanel.visible = false;
   if (xrPanel) xrPanel.visible = true;
   const xrSelected = xrPanel?.getElementById('video-selected');
-  const xrExperienceButtons = [
-    ['nature', xrPanel?.getElementById('video-nature')],
-    ['city', xrPanel?.getElementById('video-city')],
-    ['space', xrPanel?.getElementById('video-space')],
-  ] as const;
+  const xrExperienceButtons = experiences.map((experience) => [
+    experience.id,
+    xrPanel?.getElementById(`video-${experience.id}`),
+  ] as const);
   const xrStart = xrPanel?.getElementById('video-start');
   const xrStop = xrPanel?.getElementById('video-stop');
   const xrStatus = xrPanel?.getElementById('video-status');
@@ -316,7 +347,62 @@ const setupVideoDemo = (world: World): void => {
   });
   desktopStart.addEventListener('click', startVideo);
   desktopStop.addEventListener('click', stopVideo);
-  desktopEnter.addEventListener('click', () => world.launchXR());
+  desktopEnter.disabled = true;
+
+  const checkXrSupport = async (): Promise<void> => {
+    console.log('Checking immersive-vr support');
+    const xrNavigator = navigator as Navigator & { xr?: XRSystem };
+    if (!xrNavigator.xr) {
+      desktopXrCapability.textContent = 'WEBXR NOT SUPPORTED BY THIS BROWSER';
+      console.log('WebXR API available: false');
+      return;
+    }
+    console.log('WebXR API available');
+    try {
+      const supported = await xrNavigator.xr.isSessionSupported('immersive-vr');
+      console.log(`Immersive VR supported: ${supported}`);
+      if (supported) {
+        desktopXrCapability.textContent = 'IMMERSIVE VR SUPPORTED - Use the Enter XR button.';
+        desktopEnter.disabled = false;
+      } else {
+        desktopXrCapability.textContent = 'IMMERSIVE VR NOT AVAILABLE - Open this URL in Meta Quest Browser or another immersive WebXR-capable browser/device.';
+      }
+    } catch (error) {
+      desktopXrCapability.textContent = 'IMMERSIVE VR NOT AVAILABLE';
+      console.error('XR launch failed:', error);
+    }
+  };
+
+  desktopEnter.addEventListener('click', () => {
+    console.log('Launching immersive XR');
+    desktopEnter.disabled = true;
+    desktopXrCapability.textContent = 'LAUNCHING IMMERSIVE XR...';
+    try {
+      world.launchXR();
+      const launchStartedAt = performance.now();
+      const observeSession = (): void => {
+        if (world.session) {
+          console.log('XR session started');
+          desktopXrCapability.textContent = 'XR SESSION ACTIVE';
+          world.session.addEventListener('end', () => {
+            desktopXrCapability.textContent = 'IMMERSIVE VR SUPPORTED - Use the Enter XR button.';
+            desktopEnter.disabled = false;
+          }, { once: true });
+        } else if (performance.now() - launchStartedAt < 10000) {
+          requestAnimationFrame(observeSession);
+        } else {
+          desktopXrCapability.textContent = 'XR launch failed. Try Enter XR again.';
+          console.error('XR launch failed: session did not start');
+          desktopEnter.disabled = false;
+        }
+      };
+      requestAnimationFrame(observeSession);
+    } catch (error) {
+      desktopXrCapability.textContent = 'XR launch failed. Try Enter XR again.';
+      desktopEnter.disabled = false;
+      console.error('XR launch failed:', error);
+    }
+  });
   desktopExperienceButtons.forEach((button) => {
     const experienceId = button.dataset.experience;
     if (experienceId) button.addEventListener('click', () => selectExperience(experienceId));
@@ -328,6 +414,7 @@ const setupVideoDemo = (world: World): void => {
   });
   updateExperienceUI();
   selectExperience(selectedExperience.id);
+  void checkXrSupport();
 };
 
 World.create(container, projectOptions)
